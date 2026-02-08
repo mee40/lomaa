@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>📊 Dashboard</header>
+<!-- NAVBAR -->
+<div class="navbar">
+  <button class="active" onclick="location.href='index.html'">🏠 Dashboard</button>
+  <button onclick="location.href='academias.html'">🏫 Academias</button>
+</div>
+
+<!-- FILTRO MES -->
+<div class="filtro">
+  <select id="mesFiltro">
+    <option value="1">Enero</option>
+    <option value="2">Febrero</option>
+    <option value="3">Marzo</option>
+    <option value="4">Abril</option>
+    <option value="5">Mayo</option>
+    <option value="6">Junio</option>
+    <option value="7">Julio</option>
+    <option value="8">Agosto</option>
+    <option value="9">Septiembre</option>
+    <option value="10">Octubre</option>
+    <option value="11">Noviembre</option>
+    <option value="12">Diciembre</option>
+  </select>
+</div>
+
+<!-- RESUMEN GENERAL -->
+<div class="card">
+  <h3>Resumen general</h3>
+
+  <div class="academia-grid">
+    <div>
+      Total<br>
+      <strong id="totalGeneral">$0</strong>
+    </div>
+    <div>
+      Colegiaturas<br>
+      <strong id="totalColegiaturas">$0</strong>
+    </div>
+    <div>
+      Exámenes<br>
+      <strong id="totalExamenes">$0</strong>
+    </div>
+    <div>
+      Otros<br>
+      <strong id="totalOtros">$0</strong>
+    </div>
+  </div>
+</div>
+
+<!-- POR ACADEMIAS -->
+<div class="card">
+  <h3>Por academias</h3>
+  <div id="academiasResumen"></div>
+</div>
+
+<!-- RESPALDOS -->
+<div class="card">
+  <button class="btn btn-blue" onclick="guardarRespaldo()">💾 Guardar respaldo</button>
+  <button class="btn btn-gray" onclick="seleccionarArchivo('restaurar')">♻️ Restaurar respaldo</button>
+  <button class="btn btn-green" onclick="seleccionarArchivo('fusionar')">🔀 Fusionar respaldo</button>
+</div>
+
+<input type="file" id="fileInput" accept="application/json" style="display:none">
+
+
+<script src="db.js"></script>
+
+<script>
+/* =========================
+   PAGOS DEMO (CON MES)
+========================= */
+const pagos = [
+  { academia: 'Central', concepto: 'Colegiatura', monto: 500, mes: 1 },
+  { academia: 'Central', concepto: 'Colegiatura', monto: 500, mes: 2 },
+  { academia: 'Central', concepto: 'Examen', monto: 300, mes: 2 },
+  { academia: 'Norte', concepto: 'Colegiatura', monto: 450, mes: 2 },
+  { academia: 'Norte', concepto: 'Examen', monto: 250, mes: 1 },
+  { academia: 'Sur', concepto: 'Colegiatura', monto: 400, mes: 2 }
+];
+
+const mesFiltro = document.getElementById('mesFiltro');
+mesFiltro.value = new Date().getMonth() + 1;
+mesFiltro.addEventListener('change', renderDashboard);
+
+function renderDashboard() {
+  const mes = Number(mesFiltro.value);
+  const pagosMes = pagos.filter(p => p.mes === mes);
+
+  let total = 0, coleg = 0, exam = 0, otros = 0;
+
+  pagosMes.forEach(p => {
+    total += p.monto;
+    if (p.concepto === 'Colegiatura') coleg += p.monto;
+    else if (p.concepto === 'Examen') exam += p.monto;
+    else otros += p.monto;
+  });
+
+  totalGeneral.textContent = `$${total}`;
+  totalColegiaturas.textContent = `$${coleg}`;
+  totalExamenes.textContent = `$${exam}`;
+  totalOtros.textContent = `$${otros}`;
+
+  const academias = {};
+  pagosMes.forEach(p => {
+    if (!academias[p.academia]) {
+      academias[p.academia] = { total: 0, coleg: 0, exam: 0 };
+    }
+    academias[p.academia].total += p.monto;
+    if (p.concepto === 'Colegiatura') academias[p.academia].coleg += p.monto;
+    else if (p.concepto === 'Examen') academias[p.academia].exam += p.monto;
+  });
+
+  academiasResumen.innerHTML = '';
+  Object.keys(academias).forEach(nombre => {
+    const a = academias[nombre];
+    academiasResumen.innerHTML += `
+      <div class="card">
+        <strong>${nombre}</strong>
+        <div class="academia-grid">
+          <div>Total<br>$${a.total}</div>
+          <div>Coleg.<br>$${a.coleg}</div>
+          <div>Exám.<br>$${a.exam}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+renderDashboard();
+
+
+
+
+openDB().then(() => {
+  console.log('IndexedDB lista');
+
+  const tx = db.transaction('meta', 'readwrite');
+  const store = tx.objectStore('meta');
+
+  store.put({ key: 'init', value: true });
+
+  tx.oncomplete = () => console.log('Escritura OK');
+});
+
+</script>
+
+</body>
+</html>

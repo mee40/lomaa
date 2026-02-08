@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academias</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>🏫 Academias</h1>
+
+<div class="navbar">
+    <button onclick="location.href='index.html'">📊 Dashboard</button>
+    <button class="active">🏫 Academias</button>
+</div>
+
+<div class="card">
+    <button class="btn btn-green" onclick="crearAcademia()">➕ Añadir Academia</button>
+</div>
+
+<div id="listaAcademias"></div>
+
+<!-- IndexedDB -->
+<script src="db.js"></script>
+
+<script>
+/* =========================
+   ESTADO EN MEMORIA
+========================= */
+let academias = [];
+
+/* =========================
+   CARGAR ACADEMIAS
+========================= */
+function cargarAcademias() {
+    obtenerAcademias().then(data => {
+        academias = data;
+        render();
+    });
+}
+
+/* =========================
+   RENDER
+========================= */
+function render() {
+    const cont = document.getElementById('listaAcademias');
+    cont.innerHTML = '';
+
+    academias.forEach(ac => {
+        const div = document.createElement('div');
+        div.className = 'card';
+
+        div.innerHTML = `
+            <div class="academia-header">
+                <button onclick="toggleAcademia('${ac.id}')">
+
+                    ${ac.nombre}
+                </button>
+            </div>
+
+            <div class="alumnos" id="acad_${ac.id}" style="display:none">
+
+                ${(ac.alumnos || [])
+  .filter(al => al.habilitado !== false)
+  .map(al => `
+                    <div class="alumno">
+                        <div>
+                            <strong>${al.nombre}</strong><br>
+                            <small>${al.telefono}</small>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-blue" onclick="verAlumno('${al.id}')">👤</button>
+                            <button class="btn btn-gray" onclick="editarAlumno('${ac.id}', '${al.id}')">✏️</button>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <button class="btn btn-green" onclick="crearAlumno('${ac.id}')">
+                    ➕ Añadir Alumno
+                </button>
+            </div>
+        `;
+        cont.appendChild(div);
+    });
+}
+
+/* =========================
+   TOGGLE ACADEMIA
+========================= */
+function toggleAcademia(id) {
+  const el = document.getElementById('acad_' + id);
+  if (!el) return;
+
+  el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+
+
+function inhabilitarAlumno(acId, alId) {
+  if (!confirm('¿Inhabilitar alumno?')) return;
+
+  setAlumnoHabilitado(acId, alId, false).then(() => {
+    cargarAcademias();
+  });
+}
+
+
+/* =========================
+   CREAR ACADEMIA
+========================= */
+function crearAcademia() {
+    const nombre = prompt("Nombre de la academia:");
+    if (!nombre) return;
+
+    guardarAcademia(nombre).then(() => {
+        cargarAcademias();
+    });
+}
+
+/* =========================
+   CREAR ALUMNO
+========================= */
+function crearAlumno(academiaId) {
+  const nombre = prompt("Nombre del alumno:");
+  if (!nombre) return;
+
+  const telefono = prompt("Teléfono del alumno:");
+  if (!telefono) return;
+
+  guardarAlumno(academiaId, nombre, telefono).then(() => {
+    cargarAcademias();
+  });
+}
+
+
+/* =========================
+   EDITAR ALUMNO
+========================= */
+function editarAlumno(acId, alId) {
+    const ac = academias.find(a => a.id === acId);
+    if (!ac) return;
+
+    const al = ac.alumnos.find(a => a.id === alId);
+    if (!al) return;
+
+    const nombre = prompt("Nombre:", al.nombre);
+    const telefono = prompt("Teléfono:", al.telefono);
+
+    if (!nombre || !telefono) return;
+
+    actualizarAlumno(acId, alId, nombre, telefono).then(() => {
+        cargarAcademias();
+    });
+}
+
+/* =========================
+   VER ALUMNO
+========================= */
+function verAlumno(id) {
+    location.href = `alumno.html?id=${id}`;
+}
+
+/* =========================
+   INIT
+========================= */
+cargarAcademias();
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,288 @@
+/* =========================
+   RESET Y BASE
+========================= */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* =========================
+   HEADERS
+========================= */
+header {
+  background: #111827;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow:  0 3px 4px  rgba(0, 0, 0, 0.658);
+}
+
+/* =========================
+   BOTONES
+========================= */
+.btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-blue { background: #2563eb; color: #fff; }
+.btn-green { background: #16a34a; color: #fff; }
+.btn-gray { background: #6b7280; color: #fff; }
+
+/* =========================
+   FILTROS
+========================= */
+.filtro {
+  background: #fff;
+  margin: 12px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.filtro select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+}
+
+/* =========================
+   ACADEMIAS
+========================= */
+.academia-header button {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.alumnos {
+  margin-top: 10px;
+  display: none;
+}
+
+.alumno {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.alumno small {
+  color: #6b7280;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* =========================
+   ALUMNO
+========================= */
+a.back {
+  display: block;
+  margin-bottom: 10px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.whatsapp {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+/* =========================
+   NAVBAR INFERIOR
+========================= */
+.navbar {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #111827;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.navbar button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+}
+
+.navbar button.active {
+  background: #2563eb;
+}
+
+/* =========================
+   DASHBOARD - RESÚMENES
+========================= */
+
+.academia-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.academia-grid > div {
+  background: #cecece;
+  border-radius: 10px;
+  padding: 12px 6px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.academia-grid strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+}
+
+/* Tarjetas internas por academia */
+#academiasResumen .card {
+  margin-top: 10px;
+  padding: 12px;
+}
+
+/* =========================
+pagos
+========================= */
+#btnPagoFlotante {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,.3);
+  z-index: 999;
+}
+
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: white;
+  padding: 16px;
+  width: 90%;
+  max-width: 320px;
+  border-radius: 10px;
+}
+
+
+.pago-box {
+  max-width: 380px;
+}
+
+.pago-step h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.input-grande {
+  width: 100%;
+  font-size: 28px;
+  padding: 14px;
+  text-align: center;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.btn-siguiente,
+.btn-guardar {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: none;
+  background: #16a34a;
+  color: white;
+}
+
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-opcion {
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  background: #f9fafb;
+}
+
+.btn-opcion.activo {
+  background: #16a34a;
+  color: white;
+  border-color: #16a34a;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+}

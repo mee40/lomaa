@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "device": "R",
+  "exportado": "2026-02-07T22:40:00.000Z",
+  "consecutivos": {
+    "academias": 3,
+    "alumnos": 25,
+    "pagos": 412
+  },
+  "academias": [],
+  "alumnos": [],
+  "pagos": []
+}

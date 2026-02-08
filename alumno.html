@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alumno</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<a class="back" href="academias.html">⬅ Volver</a>
+
+<h1>👤 Alumno</h1>
+
+<div id="contenido"></div>
+
+<!-- BOTÓN FLOTANTE PAGO -->
+<button id="btnPagoFlotante" onclick="abrirModalPago()">💳</button>
+
+<!-- MODAL PAGO -->
+<div id="modalPago" class="modal hidden">
+  <div class="modal-box pago-box">
+
+    <!-- PASO 1 -->
+    <div class="pago-step" id="stepImporte">
+      <h2>💰 Importe</h2>
+      <input id="pagoMonto" type="number" inputmode="numeric"
+             placeholder="$0" class="input-grande">
+      <button class="btn-siguiente" onclick="irPasoConcepto()">Siguiente</button>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="pago-step hidden" id="stepConcepto">
+      <h2>📌 Concepto</h2>
+      <div class="btn-grid">
+        <button class="btn-opcion" onclick="seleccionarConcepto('Colegiatura', this)">Colegiatura</button>
+        <button class="btn-opcion" onclick="seleccionarConcepto('Examen', this)">Examen</button>
+        <button class="btn-opcion" onclick="seleccionarConcepto('Equipo', this)">Equipo</button>
+        <button class="btn-opcion" onclick="seleccionarConcepto('Otro', this)">Otro</button>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="pago-step hidden" id="stepMes">
+      <h2>📅 Mes</h2>
+      <div class="btn-grid">
+        <button class="btn-opcion" onclick="seleccionarMes('Enero', this)">Enero</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Febrero', this)">Febrero</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Marzo', this)">Marzo</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Abril', this)">Abril</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Mayo', this)">Mayo</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Junio', this)">Junio</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Julio', this)">Julio</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Agosto', this)">Agosto</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Septiembre', this)">Septiembre</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Octubre', this)">Octubre</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Noviembre', this)">Noviembre</button>
+        <button class="btn-opcion" onclick="seleccionarMes('Diciembre', this)">Diciembre</button>
+      </div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="pago-step hidden" id="stepNota">
+      <h2>📝 Nota</h2>
+      <textarea id="pagoNota" placeholder="Opcional"></textarea>
+      <button class="btn-guardar" onclick="guardarPago()">Guardar pago</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="db.js"></script>
+
+<script>
+/* =========================
+   PARAMETROS
+========================= */
+function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+const academiaId = getParam('academia');
+const alumnoId = getParam('alumno');
+const cont = document.getElementById('contenido');
+
+if (!academiaId || !alumnoId) {
+  cont.innerHTML = '<div class="card">Alumno no encontrado</div>';
+  throw new Error('Faltan parámetros');
+}
+
+/* =========================
+   CARGAR ALUMNO
+========================= */
+obtenerAlumnoPorId(alumnoId).then(alumno => {
+  if (!alumno) {
+    cont.innerHTML = '<div class="card">Alumno no encontrado</div>';
+    return;
+  }
+
+  const meses = [
+    { f: 'Enero', a: 'ENE' }, { f: 'Febrero', a: 'FEB' },
+    { f: 'Marzo', a: 'MAR' }, { f: 'Abril', a: 'ABR' },
+    { f: 'Mayo', a: 'MAY' }, { f: 'Junio', a: 'JUN' },
+    { f: 'Julio', a: 'JUL' }, { f: 'Agosto', a: 'AGO' },
+    { f: 'Septiembre', a: 'SEP' }, { f: 'Octubre', a: 'OCT' },
+    { f: 'Noviembre', a: 'NOV' }, { f: 'Diciembre', a: 'DIC' }
+  ];
+
+  const pagos = alumno.pagos || [];
+
+  const mesesPagados = new Set(
+    pagos
+      .filter(p => !p.cancelado && p.concepto.startsWith('Colegiatura'))
+      .map(p => p.concepto.replace('Colegiatura ', ''))
+  );
+
+  cont.innerHTML = `
+    <div class="card">
+      <strong>${alumno.nombre}</strong><br>
+      Tel: ${alumno.telefono}
+      <a class="whatsapp" href="https://wa.me/52${alumno.telefono}" target="_blank">📲 WhatsApp</a>
+    </div>
+
+    <div class="card">
+      <h3>📆 Colegiaturas</h3>
+      <div class="meses">
+        ${meses.map(m =>
+          `<div class="mes ${mesesPagados.has(m.f) ? 'pagado' : ''}">${m.a}</div>`
+        ).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💰 Pagos</h3>
+      ${pagos.map(p => `
+        <div class="pago-card ${p.cancelado ? 'pago-cancelado' : ''}">
+          <div>
+            <strong>${p.concepto}</strong><br>$${p.monto}
+          </div>
+          <div class="pago-actions">
+            <button class="btn-cancel" onclick="cancelarPago('${p.id}')">🚫</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+});
+
+/* =========================
+   MODAL PAGO
+========================= */
+let pagoData = { monto: null, concepto: null, mes: null };
+
+function abrirModalPago() {
+  document.getElementById('modalPago').classList.remove('hidden');
+  mostrarPaso('stepImporte');
+}
+
+function cerrarModalPago() {
+  document.getElementById('modalPago').classList.add('hidden');
+  pagoMonto.value = '';
+  pagoNota.value = '';
+  pagoData = { monto: null, concepto: null, mes: null };
+  document.querySelectorAll('.btn-opcion').forEach(b => b.classList.remove('activo'));
+}
+
+function irPasoConcepto() {
+  if (!pagoMonto.value) return alert('Ingresa el importe');
+  pagoData.monto = Number(pagoMonto.value);
+  mostrarPaso('stepConcepto');
+}
+
+function seleccionarConcepto(concepto, btn) {
+  pagoData.concepto = concepto;
+  marcarActivo(btn);
+  mostrarPaso(concepto === 'Colegiatura' ? 'stepMes' : 'stepNota');
+}
+
+function seleccionarMes(mes, btn) {
+  pagoData.mes = mes;
+  marcarActivo(btn);
+  mostrarPaso('stepNota');
+}
+
+function mostrarPaso(id) {
+  document.querySelectorAll('.pago-step').forEach(p => p.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function marcarActivo(btn) {
+  btn.parentElement.querySelectorAll('.btn-opcion').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+}
+
+/* =========================
+   GUARDAR PAGO
+========================= */
+async function guardarPago() {
+  const conceptoFinal =
+    pagoData.concepto === 'Colegiatura'
+      ? `Colegiatura ${pagoData.mes}`
+      : pagoData.concepto;
+
+  const pago = {
+    id: 'P-' + Date.now(),
+    monto: pagoData.monto,
+    concepto: conceptoFinal,
+    nota: pagoNota.value || '',
+    fecha: new Date().toISOString().split('T')[0],
+    timestamp: Date.now()
+  };
+
+  await agregarPagoAlumno(academiaId, alumnoId, pago);
+  cerrarModalPago();
+  location.reload();
+}
+</script>
+
+</body>
+</html>
